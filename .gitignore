@@ -1,6 +1,5 @@
 bin
 dist-bld
-sample-env
 .readme.md.html
 st80vm.jardesc
 st80vm.manifest
