@@ -1,0 +1,51 @@
+#!/bin/sh
+
+set -efu
+
+usage()
+{
+    <<EOF cat
+usage: $0 name
+
+    Create an Alto Smalltalk-80 image <name>.im and a disk with sources
+    <name>.dsk. This can subsequently be run using
+
+        java -jar st80vm.jar <name>
+EOF
+}
+
+if [ 1 -ne "$#" ]
+then
+    usage >&2
+    exit 64 # EX_USAGE
+fi
+name=$1
+
+root_dir=$(cd "$(dirname "$0")"/.. && pwd)
+
+set +f
+set -- \
+    "$root_dir/data/alto-v2/altodisk-files/"*.changes \
+    "$root_dir/data/alto-v2/altodisk-files/"*.form \
+    "$root_dir/data/alto-v2/archive.org/"*.sources
+set -f
+
+first=true
+for f
+do
+    if "$first"
+    then
+        set --
+        first=false
+    fi
+    set -- "$@" --import "$f" "$(basename "$f")"
+done
+
+cp "$root_dir/data/alto-v2/archive.org/VirtualImage" "$name.im"
+exec java \
+    -classpath "$root_dir/st80vm.jar" \
+    dev.hawala.st80vm.alto.AltoFile \
+    --create \
+    "$@" \
+    --list \
+    --saveas "$name.dsk"
