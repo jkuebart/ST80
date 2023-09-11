@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -efu
+
+javac \
+    --source-path src \
+    -d bin \
+    $(find src -name '*.java')
+
+exec jar \
+    --create \
+    --file st80vm.jar \
+    --main-class dev.hawala.st80vm.ST80 \
+    -C bin \
+    .
